@@ -5,7 +5,10 @@ use actix_web::{App, HttpServer, web};
 use anyhow::Context;
 
 use crate::{
-    api::{plugins::plugin_metadata, ws::ws},
+    api::{
+        plugins::{list_plugins, plugin_metadata},
+        ws::ws,
+    },
     config::Config,
     plugins::Plugin,
     state::AppState,
@@ -68,6 +71,7 @@ async fn main() -> anyhow::Result<()> {
             .wrap(Cors::permissive())
             .service(ws)
             .service(plugin_metadata)
+            .service(list_plugins)
     })
     .bind(&server_addr)?
     .run()
