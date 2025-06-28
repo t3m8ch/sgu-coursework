@@ -30,7 +30,8 @@ async fn main() -> anyhow::Result<()> {
             .filter_map(|plugin| match plugin {
                 Ok(plugin) => {
                     log::info!(
-                        "Successfully loaded plugin: {} ({}.{}.{})",
+                        "Successfully loaded plugin: {} ({} {}.{}.{})",
+                        plugin.metadata.display_name,
                         plugin.metadata.name,
                         plugin.metadata.version.major,
                         plugin.metadata.version.minor,
