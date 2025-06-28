@@ -1,11 +1,12 @@
 use std::sync::{Arc, Mutex};
 
 use actix_cors::Cors;
-use actix_web::{App, HttpServer};
+use actix_web::{App, HttpServer, web};
 use anyhow::Context;
 
-use crate::{config::Config, plugins::Plugin};
+use crate::{api::plugins::plugin_metadata, config::Config, plugins::Plugin, state::AppState};
 
+mod api;
 mod config;
 mod plugins;
 mod state;
@@ -53,10 +54,17 @@ async fn main() -> anyhow::Result<()> {
         server_addr.1
     );
 
-    HttpServer::new(move || App::new().wrap(Cors::permissive()))
-        .bind(&server_addr)?
-        .run()
-        .await?;
+    HttpServer::new(move || {
+        App::new()
+            .app_data(web::Data::new(AppState {
+                plugins: plugins.clone(),
+            }))
+            .wrap(Cors::permissive())
+            .service(plugin_metadata)
+    })
+    .bind(&server_addr)?
+    .run()
+    .await?;
 
     log::info!("Server stopped");
     Ok(())
