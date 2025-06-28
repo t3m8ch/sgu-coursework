@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 [dependencies]
 extism-pdk = "1.3.0"
 serde = { version = "1", features = ["derive"] }
+plugin-sdk = { path = "../../plugin-sdk" }
