@@ -16,6 +16,12 @@ const element = (node) => {
     const textOptionsClasses = `font-weight-${node.props.weight} text-size-${node.props.size}`;
     return <span className={textOptionsClasses}>{node.props.text}</span>;
   }
+
+  if (node.name === "button") {
+    return <button>{node.children.map((child) => element(child))}</button>;
+  }
+
+  return <></>;
 };
 
 function App() {

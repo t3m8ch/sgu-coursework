@@ -66,3 +66,19 @@ opt_args! {
         }
     }
 }
+
+opt_args! {
+    #[opt_args(shuffle)]
+    pub fn button(children: &[UINode], on_click_event: &str = "") -> UINode {
+        let mut props = HashMap::new();
+        if !on_click_event.is_empty() {
+            props.insert("on_click_event".to_string(), on_click_event.to_string());
+        };
+
+        UINode {
+            name: "button".to_string(),
+            children: children.to_vec(),
+            props,
+        }
+    }
+}
