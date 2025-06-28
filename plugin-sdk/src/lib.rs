@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -13,4 +15,11 @@ pub struct Version {
     pub major: u32,
     pub minor: u32,
     pub patch: u32,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct UINode {
+    pub name: String,
+    pub props: HashMap<String, String>,
+    pub children: Vec<UINode>,
 }

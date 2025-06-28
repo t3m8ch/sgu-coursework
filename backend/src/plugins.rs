@@ -1,12 +1,16 @@
-use std::fs;
+use std::{
+    fs,
+    sync::{Arc, Mutex},
+};
 
 use anyhow::Context;
 use extism::convert::Json;
-use plugin_sdk::PluginMetadata;
+use plugin_sdk::{PluginMetadata, UINode};
 
+#[derive(Debug, Clone)]
 pub struct Plugin {
     pub metadata: plugin_sdk::PluginMetadata,
-    extism_plugin: extism::Plugin,
+    extism_plugin: Arc<Mutex<extism::Plugin>>,
 }
 
 impl Plugin {
@@ -36,11 +40,28 @@ impl Plugin {
                     .call("metadata", ())
                     .with_context(file_err_ctx)?;
 
+                let extism_plugin = Arc::new(Mutex::new(extism_plugin));
                 Ok(Plugin {
                     metadata,
                     extism_plugin,
                 })
             })
             .collect())
+    }
+
+    pub fn ui(&mut self) -> anyhow::Result<UINode> {
+        let Json(ui): Json<UINode> = self
+            .extism_plugin
+            .lock()
+            .unwrap()
+            .call("ui", ())
+            .with_context(|| {
+                format!(
+                    "Failed to call 'ui' function for plugin: {}",
+                    self.metadata.name
+                )
+            })?;
+
+        Ok(ui)
     }
 }
