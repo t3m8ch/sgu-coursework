@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
+pub mod elements;
+
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct PluginMetadata {
     pub name: String,
