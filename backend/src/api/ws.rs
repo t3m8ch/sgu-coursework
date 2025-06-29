@@ -1,6 +1,6 @@
 use actix_web::{HttpRequest, Responder, get, web};
 use actix_ws::Message;
-use plugin_sdk::Action;
+use plugin_sdk::{Action, UINode};
 use serde::{Deserialize, Serialize};
 
 use crate::state::AppState;
@@ -12,7 +12,8 @@ pub struct ActionReq {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum ActionErrorResponse {
+pub enum ActionRes {
+    UITree(UINode),
     Error(String),
 }
 
@@ -61,10 +62,10 @@ async fn handle_action(
                 .find(|&plugin| plugin.metadata.name == action_req.plugin_name)
                 .cloned();
 
-            let not_found = ActionErrorResponse::Error("Plugin not found".to_string());
+            let not_found = ActionRes::Error("Plugin not found".to_string());
             match plugin {
                 Some(mut plugin) => {
-                    let ui = plugin.ui()?;
+                    let ui = ActionRes::UITree(plugin.ui()?);
                     session.text(serde_json::to_string(&ui)?).await?
                 }
                 None => session.text(serde_json::to_string(&not_found)?).await?,

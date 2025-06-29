@@ -90,9 +90,6 @@ function App() {
       setWsStatus("connected");
 
       socket.send(
-        // JSON.stringify({
-        //   Mount: { plugin_name: "simple-plugin" },
-        // }),
         JSON.stringify({
           plugin_name: "simple-plugin",
           action: "Mount",
@@ -101,7 +98,17 @@ function App() {
     };
     socket.onclose = () => setWsStatus("disconnected");
     socket.onerror = () => setWsStatus("error");
-    socket.onmessage = (event) => setUiTree(JSON.parse(event.data));
+    socket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      if (data.UITree) {
+        return setUiTree(data.UITree);
+      }
+
+      if (data.Error) {
+        console.error(data.Error);
+      }
+    };
 
     socketRef.current = socket;
 
