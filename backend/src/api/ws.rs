@@ -53,52 +53,39 @@ async fn handle_action(
     ws_session: &mut actix_ws::Session,
     app_state: &AppState,
 ) -> anyhow::Result<()> {
-    match action_req.action {
-        Action::Mount => {
-            log::info!("Mounting {}", action_req.plugin_name);
-            let plugin = app_state
-                .plugins
+    log::info!("Mounting {}", action_req.plugin_name);
+    let plugin = app_state
+        .plugins
+        .lock()
+        .unwrap()
+        .iter()
+        .find(|&plugin| plugin.metadata.name == action_req.plugin_name)
+        .cloned();
+
+    let not_found = ActionRes::Error("Plugin not found".to_string());
+    match plugin {
+        Some(mut plugin) => {
+            let session_state = plugin.state(StateInput {
+                action: action_req.action,
+                old_state: None,
+            })?;
+            let session_id = uuid::Uuid::new_v4();
+
+            let init_state = serde_json::to_value(session_state)?;
+            app_state
+                .sessions
                 .lock()
                 .unwrap()
-                .iter()
-                .find(|&plugin| plugin.metadata.name == action_req.plugin_name)
-                .cloned();
+                .insert(session_id, init_state.clone());
 
-            let not_found = ActionRes::Error("Plugin not found".to_string());
-            match plugin {
-                Some(mut plugin) => {
-                    let init_state = plugin.state(StateInput {
-                        action: action_req.action,
-                        old_state: None,
-                    })?;
-                    let session_id = uuid::Uuid::new_v4();
+            let ui = ActionRes::UITree(plugin.ui(init_state)?);
+            ws_session.text(serde_json::to_string(&ui)?).await?;
 
-                    app_state
-                        .sessions
-                        .lock()
-                        .unwrap()
-                        .insert(session_id, serde_json::to_value(init_state)?);
-
-                    let ui = ActionRes::UITree(plugin.ui()?);
-                    ws_session.text(serde_json::to_string(&ui)?).await?;
-
-                    let session = ActionRes::Session(session_id);
-                    ws_session.text(serde_json::to_string(&session)?).await?;
-                }
-                None => ws_session.text(serde_json::to_string(&not_found)?).await?,
-            };
-
-            Ok(())
+            let session = ActionRes::Session(session_id);
+            ws_session.text(serde_json::to_string(&session)?).await?;
         }
-        Action::Event { event, data } => {
-            log::info!(
-                "Event: {} from {} with data {:#?}",
-                event,
-                action_req.plugin_name,
-                data
-            );
+        None => ws_session.text(serde_json::to_string(&not_found)?).await?,
+    };
 
-            Ok(())
-        }
-    }
+    Ok(())
 }

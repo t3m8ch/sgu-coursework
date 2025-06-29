@@ -32,7 +32,7 @@ pub fn metadata() -> FnResult<Json<PluginMetadata>> {
 }
 
 #[plugin_fn]
-pub fn ui() -> FnResult<Json<UINode>> {
+pub fn ui(Json(state): Json<State>) -> FnResult<Json<UINode>> {
     Ok(Json(fragment!(&[
         row!(&[text!(
             "Теория графов",
@@ -44,7 +44,10 @@ pub fn ui() -> FnResult<Json<UINode>> {
             size = TextSize::Large,
             weight = FontWeight::Medium
         )]),
-        row!(&[text_input!(id = "answer", placeholder = "Введите ответ")]),
+        row!(&[match state.answer {
+            Some(answer) => text!(&format!("Вы ответили на вопрос: {}", answer)),
+            None => text_input!(id = "answer", placeholder = "Введите ответ"),
+        }]),
         row!(&[button!(
             &[text!("Следующий вопрос")],
             on_click_event = "next_question"

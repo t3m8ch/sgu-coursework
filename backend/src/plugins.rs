@@ -49,12 +49,12 @@ impl Plugin {
             .collect())
     }
 
-    pub fn ui(&mut self) -> anyhow::Result<UINode> {
+    pub fn ui(&mut self, state: serde_json::Value) -> anyhow::Result<UINode> {
         let Json(ui): Json<UINode> = self
             .extism_plugin
             .lock()
             .unwrap()
-            .call("ui", ())
+            .call("ui", state)
             .with_context(|| {
                 format!(
                     "Failed to call 'ui' function for plugin: {}",
