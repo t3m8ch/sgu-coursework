@@ -1,8 +1,8 @@
 use extism_pdk::*;
 use plugin_sdk::{
     button,
-    elements::{button, fragment, row, text, FontWeight, TextSize},
-    fragment, row, text, PluginMetadata, UINode, Version,
+    elements::{button, fragment, row, text, text_input, FontWeight, TextSize},
+    fragment, row, text, text_input, PluginMetadata, UINode, Version,
 };
 
 #[plugin_fn]
@@ -32,6 +32,7 @@ pub fn ui() -> FnResult<Json<UINode>> {
             size = TextSize::Large,
             weight = FontWeight::Medium
         )]),
+        row!(&[text_input!(id = "answer", placeholder = "Введите ответ")]),
         row!(&[button!(
             &[text!("Следующий вопрос")],
             on_click_event = "next_question"

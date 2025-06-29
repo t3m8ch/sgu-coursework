@@ -19,6 +19,20 @@ const element = (node, bus) => {
     return <span className={textOptionsClasses}>{node.props.text}</span>;
   }
 
+  if (node.name === "text_input") {
+    return (
+      <input
+        type="text"
+        placeholder={node.props.placeholder || ""}
+        onChange={(e) => {
+          if (node.props.id) {
+            bus.setTextInput(node.props.id, e.target.value);
+          }
+        }}
+      />
+    );
+  }
+
   if (node.name === "button") {
     return (
       <button
@@ -38,6 +52,7 @@ const element = (node, bus) => {
 
 function App() {
   const [uiTree, setUiTree] = useState(null);
+  const [textInputs, setTextInputs] = useState({});
   const [wsStatus, setWsStatus] = useState("disconnected");
   const socketRef = useRef(null);
 
@@ -52,11 +67,17 @@ function App() {
             Event: {
               plugin_name: "simple-plugin",
               event,
-              data: {},
+              data: {
+                text_inputs: textInputs,
+              },
             },
           }),
         );
       }
+    },
+
+    setTextInput: (id, value) => {
+      setTextInputs((prev) => ({ ...prev, [id]: value }));
     },
   };
 

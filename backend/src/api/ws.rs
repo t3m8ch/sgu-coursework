@@ -14,8 +14,13 @@ pub enum Action {
     Event {
         plugin_name: String,
         event: String,
-        data: HashMap<String, String>,
+        data: ActionData,
     },
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ActionData {
+    text_inputs: HashMap<String, String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -84,7 +89,12 @@ async fn handle_action(
             event,
             data,
         } => {
-            log::info!("Event: {} from {}", event, plugin_name);
+            log::info!(
+                "Event: {} from {} with data {:#?}",
+                event,
+                plugin_name,
+                data
+            );
 
             Ok(())
         }

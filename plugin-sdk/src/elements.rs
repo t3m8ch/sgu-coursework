@@ -82,3 +82,20 @@ opt_args! {
         }
     }
 }
+
+opt_args! {
+    #[opt_args(shuffle)]
+    pub fn text_input(id: &str = "", placeholder: &str = "") -> UINode {
+        let mut props = HashMap::new();
+        if !id.is_empty() {
+            props.insert("id".to_string(), id.to_string());
+        };
+        props.insert("placeholder".to_string(), placeholder.to_string());
+
+        UINode {
+            name: "text_input".to_string(),
+            children: vec![],
+            props,
+        }
+    }
+}
