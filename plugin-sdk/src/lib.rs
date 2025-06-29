@@ -28,14 +28,8 @@ pub struct UINode {
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum Action {
-    Mount {
-        plugin_name: String,
-    },
-    Event {
-        plugin_name: String,
-        event: String,
-        data: ActionData,
-    },
+    Mount,
+    Event { event: String, data: ActionData },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

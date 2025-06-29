@@ -6,6 +6,12 @@ use serde::{Deserialize, Serialize};
 use crate::state::AppState;
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ActionReq {
+    pub plugin_name: String,
+    pub action: Action,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum ActionErrorResponse {
     Error(String),
 }
@@ -22,7 +28,7 @@ pub async fn ws(
         while let Some(Ok(msg)) = msg_stream.recv().await {
             match msg {
                 Message::Text(msg) => {
-                    if let Ok(action) = serde_json::from_str::<Action>(&msg.to_string()) {
+                    if let Ok(action) = serde_json::from_str::<ActionReq>(&msg.to_string()) {
                         if let Err(err) = handle_action(action, &mut session, &state).await {
                             log::error!("Handle action error: {:#?}", err);
                         }
@@ -40,19 +46,19 @@ pub async fn ws(
 }
 
 async fn handle_action(
-    action: Action,
+    action_req: ActionReq,
     session: &mut actix_ws::Session,
     state: &AppState,
 ) -> anyhow::Result<()> {
-    match action {
-        Action::Mount { plugin_name } => {
-            log::info!("Mounting {}", plugin_name);
+    match action_req.action {
+        Action::Mount => {
+            log::info!("Mounting {}", action_req.plugin_name);
             let plugin = state
                 .plugins
                 .lock()
                 .unwrap()
                 .iter()
-                .find(|&plugin| plugin.metadata.name == plugin_name)
+                .find(|&plugin| plugin.metadata.name == action_req.plugin_name)
                 .cloned();
 
             let not_found = ActionErrorResponse::Error("Plugin not found".to_string());
@@ -66,15 +72,11 @@ async fn handle_action(
 
             Ok(())
         }
-        Action::Event {
-            plugin_name,
-            event,
-            data,
-        } => {
+        Action::Event { event, data } => {
             log::info!(
                 "Event: {} from {} with data {:#?}",
                 event,
-                plugin_name,
+                action_req.plugin_name,
                 data
             );
 

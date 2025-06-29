@@ -51,12 +51,8 @@ pub fn state(
     Json(StateInput { action, old_state }): Json<StateInput<State>>,
 ) -> FnResult<Json<State>> {
     Ok(Json(match action {
-        Action::Mount { plugin_name: _ } => State { answer: None },
-        Action::Event {
-            plugin_name: _,
-            event,
-            data,
-        } => match event.as_str() {
+        Action::Mount => State { answer: None },
+        Action::Event { event, data } => match event.as_str() {
             "next_question" => State {
                 answer: data.text_inputs.get("answer").cloned(),
             },

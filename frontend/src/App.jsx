@@ -64,11 +64,13 @@ function App() {
       ) {
         socketRef.current.send(
           JSON.stringify({
-            Event: {
-              plugin_name: "simple-plugin",
-              event,
-              data: {
-                text_inputs: textInputs,
+            plugin_name: "simple-plugin",
+            action: {
+              Event: {
+                event,
+                data: {
+                  text_inputs: textInputs,
+                },
               },
             },
           }),
@@ -88,8 +90,12 @@ function App() {
       setWsStatus("connected");
 
       socket.send(
+        // JSON.stringify({
+        //   Mount: { plugin_name: "simple-plugin" },
+        // }),
         JSON.stringify({
-          Mount: { plugin_name: "simple-plugin" },
+          plugin_name: "simple-plugin",
+          action: "Mount",
         }),
       );
     };
