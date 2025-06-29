@@ -1,19 +1,26 @@
 use extism_pdk::*;
 use plugin_sdk::{
     button,
-    elements::{button, fragment, row, text, text_input, FontWeight, TextSize},
-    fragment, row, text, text_input, Action, PluginMetadata, StateInput, UINode, Version,
+    elements::{
+        button, fragment, radio_group, row, text, text_input, FontWeight, RadioOption, TextSize,
+    },
+    fragment, radio_group, row, text, text_input, Action, PluginMetadata, StateInput, UINode,
+    Version,
 };
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct State {
     answer: Option<String>,
+    option: Option<String>,
 }
 
 impl Default for State {
     fn default() -> Self {
-        State { answer: None }
+        State {
+            answer: None,
+            option: None,
+        }
     }
 }
 
@@ -44,9 +51,22 @@ pub fn ui(Json(state): Json<State>) -> FnResult<Json<UINode>> {
             size = TextSize::Large,
             weight = FontWeight::Medium
         )]),
+        row!(&[radio_group!(
+            &[
+                RadioOption::new("aboba1", "ABOBA 1"),
+                RadioOption::new("aboba2", "ABOBA 2"),
+                RadioOption::new("aboba3", "ABOBA 3"),
+            ],
+            id = "options",
+            title = "Выберите один из вариантов"
+        )]),
         row!(&[match state.answer {
             Some(answer) => text!(&format!("Вы ответили на вопрос: {}", answer)),
             None => text_input!(id = "answer", placeholder = "Введите ответ"),
+        }]),
+        row!(&[match state.option {
+            Some(option) => text!(&format!("Вы выбрали вариант: {}", option)),
+            None => fragment!(&[]),
         }]),
         row!(&[button!(
             &[text!("Следующий вопрос")],
@@ -64,6 +84,7 @@ pub fn state(
         Action::Event { event, data } => match event.as_str() {
             "next_question" => State {
                 answer: data.text_inputs.get("answer").cloned(),
+                option: data.radio_groups.get("options").cloned(),
             },
             _ => match old_state {
                 Some(old_state) => old_state,

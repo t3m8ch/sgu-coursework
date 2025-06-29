@@ -99,3 +99,46 @@ opt_args! {
         }
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct RadioOption {
+    pub value: String,
+    pub label: String,
+}
+
+impl RadioOption {
+    pub fn new(value: &str, label: &str) -> Self {
+        Self {
+            value: value.to_string(),
+            label: label.to_string(),
+        }
+    }
+}
+
+opt_args! {
+    #[opt_args(shuffle)]
+    pub fn radio_group(options: &[RadioOption], id: &str = "", title: &str = "") -> UINode {
+        let mut props = HashMap::new();
+        if !id.is_empty() {
+            props.insert("id".to_string(), id.to_string());
+        }
+        if !title.is_empty() {
+            props.insert("title".to_string(), title.to_string());
+        }
+
+        UINode {
+            name: "radio_group".to_string(),
+            children: options.iter().map(|option| {
+                UINode {
+                    name: "radio_option".to_string(),
+                    children: vec![],
+                    props: HashMap::from([
+                        ("value".to_string(), option.value.clone()),
+                        ("label".to_string(), option.label.clone()),
+                    ]),
+                }
+            }).collect(),
+            props
+        }
+    }
+}

@@ -47,12 +47,37 @@ const element = (node, bus) => {
     );
   }
 
+  if (node.name === "radio_group") {
+    return (
+      <fieldset>
+        {node.props.title && <legend>{node.props.title}</legend>}
+
+        {node.children.map((child) => (
+          <div key={child.props.value}>
+            <input
+              type="radio"
+              id={child.props.value}
+              name={child.props.label}
+              value={child.props.value}
+              checked={bus.getRadioGroup(node.props.id) === child.props.value}
+              onChange={() => {
+                bus.setRadioGroup(node.props.id, child.props.value);
+              }}
+            />
+            <label htmlFor={child.props.value}>{child.props.label}</label>
+          </div>
+        ))}
+      </fieldset>
+    );
+  }
+
   return <></>;
 };
 
 function App() {
   const [uiTree, setUiTree] = useState(null);
   const [textInputs, setTextInputs] = useState({});
+  const [radioGroups, setRadioGroups] = useState({});
   const [sessionId, setSessionId] = useState(null);
   const [wsStatus, setWsStatus] = useState("disconnected");
   const socketRef = useRef(null);
@@ -71,6 +96,7 @@ function App() {
                 event,
                 data: {
                   text_inputs: textInputs,
+                  radio_groups: radioGroups,
                 },
               },
             },
@@ -81,6 +107,18 @@ function App() {
 
     setTextInput: (id, value) => {
       setTextInputs((prev) => ({ ...prev, [id]: value }));
+    },
+
+    setupRadioGroup: (id, options) => {
+      setRadioGroups((prev) => ({ ...prev, [id]: options[0].value }));
+    },
+
+    getRadioGroup: (id) => {
+      return radioGroups[id];
+    },
+
+    setRadioGroup: (id, value) => {
+      setRadioGroups((prev) => ({ ...prev, [id]: value }));
     },
   };
 

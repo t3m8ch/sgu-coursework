@@ -35,6 +35,7 @@ pub enum Action {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct ActionData {
     pub text_inputs: HashMap<String, String>,
+    pub radio_groups: HashMap<String, String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
