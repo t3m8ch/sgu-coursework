@@ -168,8 +168,16 @@ function App() {
 
   return (
     <div>
-      <div>{wsStatus}</div>
-      <div>{uiTree === null ? "Loading..." : element(uiTree, bus)}</div>
+      <div className="ws-status" data-status={wsStatus}>
+        {wsStatus}
+      </div>
+      <div className="app-content">
+        {uiTree === null ? (
+          <div className="loading-container">Loading...</div>
+        ) : (
+          element(uiTree, bus)
+        )}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,376 @@
+/* App-specific styles using CSS custom properties */
+
+/* Reset for App container */
+#root {
+    min-height: 100vh;
+    padding: var(--space-5);
+}
+
+/* WebSocket status indicator */
+.ws-status {
+    position: fixed;
+    top: var(--space-3);
+    right: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    z-index: var(--z-fixed);
+    transition: all var(--transition-base);
+}
+
+/* Status-specific styles */
+.ws-status[data-status="connected"] {
+    background-color: var(--color-success);
+    color: white;
+}
+
+.ws-status[data-status="disconnected"] {
+    background-color: var(--color-error);
+    color: white;
+}
+
+.ws-status[data-status="error"] {
+    background-color: var(--color-warning);
+    color: white;
+}
+
+/* Main content container */
+.app-content {
+    max-width: 56rem; /* 896px */
+    margin: 0 auto;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-8);
+    min-height: 25rem; /* 400px */
+    position: relative;
+}
+
+/* Loading state */
+.loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 25rem;
+    font-size: var(--font-size-lg);
+    color: var(--color-text-secondary);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* Row layout component */
+.row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.row:last-child {
+    margin-bottom: 0;
+}
+
+/* Text styling - Font weights */
+.font-weight-regular {
+    font-weight: var(--font-weight-normal);
+}
+
+.font-weight-medium {
+    font-weight: var(--font-weight-medium);
+}
+
+.font-weight-bold {
+    font-weight: var(--font-weight-bold);
+}
+
+/* Text styling - Sizes */
+.text-size-small {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+}
+
+.text-size-normal {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+}
+
+.text-size-large {
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-tight);
+}
+
+.text-size-huge {
+    font-size: var(--font-size-3xl);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Text elements */
+span {
+    display: inline-block;
+    color: var(--color-text-primary);
+}
+
+/* Button styling */
+button {
+    background: linear-gradient(
+        135deg,
+        var(--color-primary) 0%,
+        var(--color-primary-dark) 100%
+    );
+    color: white;
+    border: none;
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-base);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 2.75rem; /* 44px for touch targets */
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: left var(--transition-slow);
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-md);
+}
+
+button:disabled {
+    background: var(--color-border-medium);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+button:disabled::before {
+    display: none;
+}
+
+/* Text input styling */
+input[type="text"] {
+    padding: var(--space-3) var(--space-4);
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--radius-base);
+    font-size: var(--font-size-base);
+    transition:
+        border-color var(--transition-base),
+        box-shadow var(--transition-base),
+        background-color var(--transition-base);
+    background: var(--color-bg-primary);
+    min-width: 12.5rem; /* 200px */
+    min-height: 2.75rem; /* 44px for touch targets */
+    color: var(--color-text-primary);
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+    background: var(--color-bg-primary);
+}
+
+input[type="text"]::placeholder {
+    color: var(--color-text-muted);
+}
+
+input[type="text"]:hover:not(:focus) {
+    border-color: var(--color-border-medium);
+}
+
+/* Radio group styling */
+fieldset {
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    margin: var(--space-4) 0;
+    background: var(--color-bg-secondary);
+    transition: border-color var(--transition-base);
+}
+
+fieldset:hover {
+    border-color: var(--color-border-medium);
+}
+
+fieldset:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+legend {
+    padding: 0 var(--space-3);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-light);
+    font-size: var(--font-size-sm);
+}
+
+/* Radio option container */
+fieldset > div {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-3) 0;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-base);
+    cursor: pointer;
+    min-height: 2.75rem; /* 44px for touch targets */
+}
+
+fieldset > div:hover {
+    background-color: var(--color-primary-light);
+}
+
+fieldset > div:has(input:checked) {
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary);
+}
+
+/* Radio input styling */
+input[type="radio"] {
+    width: 1.125rem; /* 18px */
+    height: 1.125rem; /* 18px */
+    accent-color: var(--color-primary);
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Radio label styling */
+fieldset label {
+    font-size: var(--font-size-base);
+    cursor: pointer;
+    color: var(--color-text-primary);
+    flex: 1;
+    user-select: none;
+}
+
+/* Responsive design */
+@media (max-width: 48rem) {
+    /* 768px */
+    #root {
+        padding: var(--space-3);
+    }
+
+    .app-content {
+        padding: var(--space-4);
+        border-radius: var(--radius-lg);
+    }
+
+    .row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-2);
+    }
+
+    button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    input[type="text"] {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .text-size-huge {
+        font-size: var(--font-size-2xl);
+    }
+
+    .text-size-large {
+        font-size: var(--font-size-lg);
+    }
+
+    .ws-status {
+        position: static;
+        margin-bottom: var(--space-4);
+        text-align: center;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    button {
+        background: var(--color-text-primary);
+        border: 2px solid var(--color-text-primary);
+    }
+
+    input[type="text"] {
+        border-width: 2px;
+    }
+
+    fieldset {
+        border-width: 2px;
+    }
+}
+
+/* Scrollbar styling for webkit browsers */
+::-webkit-scrollbar {
+    width: var(--space-2);
+    height: var(--space-2);
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border-medium);
+    border-radius: var(--radius-sm);
+    transition: background-color var(--transition-base);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+}
+
+/* Firefox scrollbar styling */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-medium) var(--color-bg-secondary);
+}
