@@ -91,6 +91,7 @@ function App() {
         socketRef.current.send(
           JSON.stringify({
             plugin_name: "simple-plugin",
+            session_id: sessionId,
             action: {
               Event: {
                 event,
@@ -132,6 +133,7 @@ function App() {
         JSON.stringify({
           plugin_name: "simple-plugin",
           action: "Mount",
+          session_id: sessionId,
         }),
       );
     };
