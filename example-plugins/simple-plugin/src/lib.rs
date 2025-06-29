@@ -2,8 +2,14 @@ use extism_pdk::*;
 use plugin_sdk::{
     button,
     elements::{button, fragment, row, text, text_input, FontWeight, TextSize},
-    fragment, row, text, text_input, PluginMetadata, UINode, Version,
+    fragment, row, text, text_input, Action, PluginMetadata, StateInput, UINode, Version,
 };
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize)]
+pub struct State {
+    answer: Option<String>,
+}
 
 #[plugin_fn]
 pub fn metadata() -> FnResult<Json<PluginMetadata>> {
@@ -38,4 +44,23 @@ pub fn ui() -> FnResult<Json<UINode>> {
             on_click_event = "next_question"
         )])
     ])))
+}
+
+#[plugin_fn]
+pub fn state(
+    Json(StateInput { action, old_state }): Json<StateInput<State>>,
+) -> FnResult<Json<State>> {
+    Ok(Json(match action {
+        Action::Mount { plugin_name: _ } => State { answer: None },
+        Action::Event {
+            plugin_name: _,
+            event,
+            data,
+        } => match event.as_str() {
+            "next_question" => State {
+                answer: data.text_inputs.get("answer").cloned(),
+            },
+            _ => old_state,
+        },
+    }))
 }

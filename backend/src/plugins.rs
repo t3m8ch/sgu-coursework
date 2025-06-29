@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::Context;
 use extism::convert::Json;
-use plugin_sdk::{PluginMetadata, UINode};
+use plugin_sdk::{PluginMetadata, StateInput, UINode};
 
 #[derive(Debug, Clone)]
 pub struct Plugin {
@@ -63,5 +63,24 @@ impl Plugin {
             })?;
 
         Ok(ui)
+    }
+
+    pub fn state(
+        &mut self,
+        state_input: StateInput<serde_json::Value>,
+    ) -> anyhow::Result<serde_json::Value> {
+        let Json(new_state): Json<serde_json::Value> = self
+            .extism_plugin
+            .lock()
+            .unwrap()
+            .call("state", serde_json::to_value(state_input)?)
+            .with_context(|| {
+                format!(
+                    "Failed to call 'state' function for plugin: {}",
+                    self.metadata.name
+                )
+            })?;
+
+        Ok(new_state)
     }
 }

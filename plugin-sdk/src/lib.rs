@@ -25,3 +25,26 @@ pub struct UINode {
     pub props: HashMap<String, String>,
     pub children: Vec<UINode>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum Action {
+    Mount {
+        plugin_name: String,
+    },
+    Event {
+        plugin_name: String,
+        event: String,
+        data: ActionData,
+    },
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ActionData {
+    pub text_inputs: HashMap<String, String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct StateInput<T> {
+    pub action: Action,
+    pub old_state: T,
+}

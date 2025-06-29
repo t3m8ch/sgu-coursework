@@ -1,27 +1,9 @@
-use std::collections::HashMap;
-
 use actix_web::{HttpRequest, Responder, get, web};
 use actix_ws::Message;
+use plugin_sdk::Action;
 use serde::{Deserialize, Serialize};
 
 use crate::state::AppState;
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub enum Action {
-    Mount {
-        plugin_name: String,
-    },
-    Event {
-        plugin_name: String,
-        event: String,
-        data: ActionData,
-    },
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct ActionData {
-    text_inputs: HashMap<String, String>,
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum ActionErrorResponse {
