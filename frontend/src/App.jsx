@@ -53,6 +53,7 @@ const element = (node, bus) => {
 function App() {
   const [uiTree, setUiTree] = useState(null);
   const [textInputs, setTextInputs] = useState({});
+  const [sessionId, setSessionId] = useState(null);
   const [wsStatus, setWsStatus] = useState("disconnected");
   const socketRef = useRef(null);
 
@@ -103,6 +104,10 @@ function App() {
 
       if (data.UITree) {
         return setUiTree(data.UITree);
+      }
+
+      if (data.Session) {
+        return setSessionId(data.Session);
       }
 
       if (data.Error) {

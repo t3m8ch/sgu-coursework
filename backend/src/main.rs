@@ -1,4 +1,7 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use actix_cors::Cors;
 use actix_web::{App, HttpServer, web};
@@ -67,6 +70,7 @@ async fn main() -> anyhow::Result<()> {
         App::new()
             .app_data(web::Data::new(AppState {
                 plugins: plugins.clone(),
+                sessions: Arc::new(Mutex::new(HashMap::new())),
             }))
             .wrap(Cors::permissive())
             .service(ws)

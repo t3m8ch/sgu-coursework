@@ -11,6 +11,12 @@ pub struct State {
     answer: Option<String>,
 }
 
+impl Default for State {
+    fn default() -> Self {
+        State { answer: None }
+    }
+}
+
 #[plugin_fn]
 pub fn metadata() -> FnResult<Json<PluginMetadata>> {
     Ok(Json(PluginMetadata {
@@ -51,12 +57,15 @@ pub fn state(
     Json(StateInput { action, old_state }): Json<StateInput<State>>,
 ) -> FnResult<Json<State>> {
     Ok(Json(match action {
-        Action::Mount => State { answer: None },
+        Action::Mount => State::default(),
         Action::Event { event, data } => match event.as_str() {
             "next_question" => State {
                 answer: data.text_inputs.get("answer").cloned(),
             },
-            _ => old_state,
+            _ => match old_state {
+                Some(old_state) => old_state,
+                None => State::default(),
+            },
         },
     }))
 }

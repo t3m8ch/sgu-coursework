@@ -40,5 +40,5 @@ pub struct ActionData {
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct StateInput<T> {
     pub action: Action,
-    pub old_state: T,
+    pub old_state: Option<T>,
 }

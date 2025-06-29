@@ -1,6 +1,6 @@
 use actix_web::{HttpRequest, Responder, get, web};
 use actix_ws::Message;
-use plugin_sdk::{Action, UINode};
+use plugin_sdk::{Action, StateInput, UINode};
 use serde::{Deserialize, Serialize};
 
 use crate::state::AppState;
@@ -9,11 +9,13 @@ use crate::state::AppState;
 pub struct ActionReq {
     pub plugin_name: String,
     pub action: Action,
+    pub session_id: Option<uuid::Uuid>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub enum ActionRes {
     UITree(UINode),
+    Session(uuid::Uuid),
     Error(String),
 }
 
@@ -21,7 +23,7 @@ pub enum ActionRes {
 pub async fn ws(
     req: HttpRequest,
     body: web::Payload,
-    state: web::Data<AppState>,
+    app_state: web::Data<AppState>,
 ) -> actix_web::Result<impl Responder> {
     let (response, mut session, mut msg_stream) = actix_ws::handle(&req, body)?;
 
@@ -30,7 +32,7 @@ pub async fn ws(
             match msg {
                 Message::Text(msg) => {
                     if let Ok(action) = serde_json::from_str::<ActionReq>(&msg.to_string()) {
-                        if let Err(err) = handle_action(action, &mut session, &state).await {
+                        if let Err(err) = handle_action(action, &mut session, &app_state).await {
                             log::error!("Handle action error: {:#?}", err);
                         }
                     }
@@ -48,13 +50,13 @@ pub async fn ws(
 
 async fn handle_action(
     action_req: ActionReq,
-    session: &mut actix_ws::Session,
-    state: &AppState,
+    ws_session: &mut actix_ws::Session,
+    app_state: &AppState,
 ) -> anyhow::Result<()> {
     match action_req.action {
         Action::Mount => {
             log::info!("Mounting {}", action_req.plugin_name);
-            let plugin = state
+            let plugin = app_state
                 .plugins
                 .lock()
                 .unwrap()
@@ -65,10 +67,25 @@ async fn handle_action(
             let not_found = ActionRes::Error("Plugin not found".to_string());
             match plugin {
                 Some(mut plugin) => {
+                    let init_state = plugin.state(StateInput {
+                        action: action_req.action,
+                        old_state: None,
+                    })?;
+                    let session_id = uuid::Uuid::new_v4();
+
+                    app_state
+                        .sessions
+                        .lock()
+                        .unwrap()
+                        .insert(session_id, serde_json::to_value(init_state)?);
+
                     let ui = ActionRes::UITree(plugin.ui()?);
-                    session.text(serde_json::to_string(&ui)?).await?
+                    ws_session.text(serde_json::to_string(&ui)?).await?;
+
+                    let session = ActionRes::Session(session_id);
+                    ws_session.text(serde_json::to_string(&session)?).await?;
                 }
-                None => session.text(serde_json::to_string(&not_found)?).await?,
+                None => ws_session.text(serde_json::to_string(&not_found)?).await?,
             };
 
             Ok(())
